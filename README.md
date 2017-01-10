@@ -23,3 +23,6 @@ resources/views/youtube/home.blade.php<BR>
 主要開發者：https://github.com/telunyang/Video_Downloader_Splitter_Converter<br>
 <br>
 說明：此版本是個人的改造版(網頁顯示修改)
+
+--update 2017-01-10--<BR>
+更新頁面操作功能、增加合併影片、重製影片、修改檔名等功能<BR>
