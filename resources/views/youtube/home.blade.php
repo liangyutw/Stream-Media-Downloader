@@ -1,5 +1,9 @@
+<style>
+    p#single_file {padding:5px 0px 5px 0px;margin:0px;border:0px solid #000;}
+    p:hover {background-color: #eaeaea;}
+</style>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<meta name="csrf-token" content="{{ csrf_token() }}">
+<input type="hidden" id="csrf-token" name="csrf-token" value="{{csrf_token()}}">
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
@@ -14,26 +18,21 @@
                     </div>
                     <button type="button" class="btn btn-primary" id="btn_download">下載影片</button>
 
-                    <hr />
-
-                    <div class="form-group">
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">伺服器回傳訊息</div>
-                            <div class="panel-body pre-scrollable" id="msg_board" style="overflow-y: scroll;height:200px;max-height:500px;"></div>
-                        </div>
-                    </div>
 
 
-
-                    {{--<p><a class='inline' href="#inline_content">影片列表</a></p>--}}
-                    <button id="create-user">影片列表</button>
+                    <button type="button" class="btn btn-primary" id="video-list">影片列表</button>
+                    <button type="button" class="btn btn-primary" onclick="if(confirm('重整可能使程序錯誤，請確認未執行程序!')){location.reload();}else{return false;}">頁面重整</button>
 
                     <div style='display:none;'>
                         <div id='inline' title="編輯影片(可拖曳視窗)" style='padding:10px;background:#fff;'>
 
+                            <label>控制按鈕</label>
+                            <div><button type="button" class="btn btn-primary" id="btn_open_merge" value="0">合併(或重製)影片</button>
+                                <button type="button" class="btn btn-primary" id="btn_open_delete_edit" value="0">開啟刪除/修改檔名</button></div>
                             <!-- 檔案列表 -->
                             <div id="s3_list" style="overflow-y: scroll;height:auto;max-height:300px;">
                                 <label>檔案列表</label>
+                                <div id="select_btn" style="display:none;"><button type="button" class="btn btn-primary" id="select_all">全選</button><button type="button" class="btn btn-primary" id="unselect_all">取消全選</button></div>
                                 @if( isset($arr_list) && count($arr_list) > 0 )
                                     @for($i = 0; $i < count($arr_list); $i++)
                                         <?php
@@ -42,26 +41,30 @@
                                         $arr_ext = explode('.', $value);
                                         $ext = $arr_ext[count($arr_ext)-1];
                                         ?>
-                                        <p>
-                                            <input type="button" class="deleteFile" value="刪除" data-path="{{ $value }}" />
-                                            <input type="button" class="editFile" value="編輯" data-path="{{ $value }}" />
-                                            @if( $ext == 'mp4' )
-                                                <input type="button" class="stream" value="測試" data-path="{{ $value }}" />
-                                            @endif
+                                        <p id="single_file" style="cursor: pointer;">
+                                            <input type="checkbox" class="mergeFile" data-path="{{ $value }}" style="display:none;"/>
+                                            <input type="button" class="editFile" value="編輯" data-path="{{ $value }}" style=" float: left;" />
+                                            <input type="button" class="deleteFile" value="刪除" data-path="{{ $value }}" style="display:none; float: left;" />
+                                            <input type="button" class="renameFile" value="更名" data-path="{{ $value }}" style="display:none; float: left;" />
+                                            <span><?php echo ' '.($i+1).' - ';?></span>
                                             <a class="preview" href="{{ asset('storage/'.$value) }}" target="_blank" title="{{ $value }}">{{ $value }}</a>
+                                            <span style="font-size: 10pt;"><?php echo round(filesize(public_path().'/storage/'.$value)/1024/1024, 2);?>MB</span>
+                                            <div style="clear: both;"></div>
                                         </p>
                                     @endfor
                                 @else
                                     <p>尚無影片</p>
                                 @endif
-                            </div>
 
+                            </div>
+                            <div id="file_name_area"></div>
                             <hr />
 
                             <div class="form-group">
                                 <label>影片播放/編輯區</label>
+                                <h3>播放檔案：<span id="video_name" style="color:red;"></span></h3>
                                 <div align="center" class="embed-responsive embed-responsive-16by9">
-                                    <video id="player" controls class="embed-responsive-item"></video>
+                                    <video id="player"  height="300" controls class="embed-responsive-item"></video>
                                 </div>
                             </div>
 
@@ -71,6 +74,8 @@
                                 <div>切割起始時間：<input type="text" id="start_time" value="" /><input type="button" id="getStartTime" value="取得起始時間" /></div>
                                 <div>切割結束時間：<input type="text" id="end_time" value="" /><input type="button" id="getEndTime" value="取得結束時間" /></div>
                                 <button type="button" class="btn btn-primary" id="btn_split">切割影片</button>
+                                <button type="button" class="btn btn-primary" id="btn_merge">合併影片</button>
+                                <button type="button" class="btn btn-primary" id="btn_rebuild">重製影片</button>
                                 <button type="button" class="btn btn-primary" id="btn_snapshot">擷取圖片（png）</button>
                                 <button type="button" class="btn btn-primary" id="btn_mp3">擷取 MP3</button>
                             </div>
@@ -79,6 +84,16 @@
                     </div>
 
 
+                    <hr />
+
+                    <div class="form-group">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">伺服器回傳訊息</div>
+                            <div class="panel-body pre-scrollable" id="msg_board" style="overflow-y: scroll;height:500px;max-height:500px;"></div>
+                        </div>
+                    </div>
+
+                    <div id="concat_string"></div>
                 </div>
 
             </div>
@@ -88,264 +103,230 @@
 
 
 <!-- socket.io CDN -->
-<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="/js/socket.io-1.4.5.js"></script>
+<script src="/js/jquery-1.12.4.min.js"></script>
+<script src="/js/jquery-1.12.1-ui.js"></script>
+<script src="/js/function.js"></script>
+
+<script>
+
+    var dialog;
+    dialog = $( "#inline" ).dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: {
+            Close: function() {
+                dialog.dialog( "close" );
+            }
+        }
+    });
+</script>
+
+<script src="/js/execute.js"></script>
 
 <!-- 自訂 js -->
 <script>
 
+$(function(){
+    //預設下載、合併按鈕不可點
+    $("#btn_download, #btn_merge, #btn_rebuild").attr('disabled', true);
 
-    $(function(){
-
-        var dialog;
-        dialog = $( "#inline" ).dialog({
-            autoOpen: false,
-            height: "auto",
-            width: "auto",
-            modal: true,
-            buttons: {
-                Close: function() {
-                    dialog.dialog( "close" );
-                }
-            }
-        });
-
-        $( "#create-user" ).button().on( "click", function() {
-            dialog.dialog( "open" );
-        });
-
-
-        //頁面偵測是否有影片可切割擷圖
-        if ($('video#player > source').attr('src') == undefined) {
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot, #btn_mp3').attr('disabled', true);
-            return false;
+    //偵測有勾選才開啟合併影片按鈕
+    $("input[type=checkbox]").on('click', function() {
+        if ($(this).prop("checked") == true) {
+            $("#btn_merge, #btn_rebuild").attr("disabled", false);
         }else{
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot, #btn_mp3').attr('disabled', false);
+            $("#btn_merge, #btn_rebuild").attr("disabled", true);
         }
-    })
+    });
 
-    var video_name = ''; //給切割命名用，在編輯鈕按下的那一刻來決定
+    //切換 checkbox、button
+    $("#btn_open_merge").on('click', function(){
+        var open_merge = this;
+        if ($(open_merge).val() == 1) {
+            $(open_merge).val(0).html('合併(或重製)影片');
 
-    $(document).ready(function(){
-        //透過 web server 的 3000 port 來進行連線
-        socket = io.connect('http://192.168.136.128:3000/');
+            $("#select_btn").css('display', 'none');
+        }else {
 
-        //建立連結
-        socket.on('connect', function() {
-            $('#server_connection').removeClass("label-danger").addClass('label-success').text('已連線');
-            $('div#msg_board').append('<div>您已與伺服器連線（Node.js Socket.io）</div>');
-        });
+            $(open_merge).val(1).html('編輯影片');
+            $("#select_btn").css('display', 'block');
+        }
+        $("input[type=checkbox], .deleteFile, .editFile, .renameFile").toggle();
+        $(".deleteFile, .renameFile").css('display', 'none');
+    });
 
-        //連線錯誤（可能 server 端有狀況）
-        socket.on('connect_error',function(){
-            $('#server_connection').removeClass("label-success").addClass('label-danger').text('尚未連線');
-            $('div#msg_board').append('<div>您已與伺服器斷線...........</div>');
-        });
-
-        //傳送 url 連結到伺服器
-        $(document).on('click', '#btn_download', function() {
-            if( $('#url').val() == "" )
-            {
-                alert('請輸入網址，謝謝');
-                return false;
+    //全選
+    $("#select_all").on('click', function(){
+        $("input[type=checkbox]").prop({checked: true});
+        $.each($("input[type=checkbox]"), function(k, v){
+            if ($(v).prop("checked") == true) {
+                $("#btn_merge, #btn_rebuild").prop({disabled: false});
             }
+        })
+    });
 
-            socket.emit('url', $('#url').val());
-            $('#url').val('');
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
-        });
-
-        //接收從 node.js 程式回傳的結果
-        socket.on('server_msg', function(data) {
-            //var data = new TextDecoder("utf-8").decode(data);
-            //alert( data );
-            $('div#msg_board').append('<div>' + data + '</div>');
-
-            //div 滾輪往下滾
-            $('div#msg_board').scrollTop( $('div#msg_board')[0].scrollHeight );
-        });
-
-        //當指令執行完畢後，會丟一個確認訊息 (exited code) 過來
-        socket.on('server_cmd_finished', function(code) {
-            switch( parseInt(code) )
-            {
-                case 0:
-                    if (confirm('下載完畢!\n是否重整?')){
-                        location.reload();
-                    }
-                    //getS3Files();
-                    break;
-
-                case 1:
-                    alert('Node.js 程式執行出錯與終止，請至伺服器查看');
-                    break;
-            }
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', false);
-        });
-
-        //取得 video player
-        var player = document.getElementById('player');
-
-        //播放軸的目前選擇時間
-        player.addEventListener("seeked", function(){
-            $('#current_time').val( toHHMMSS(player.currentTime) );
-        });
-
-        //編輯按鈕，開啟編輯模式 (會在播放器裡面加入 source 元素)
-        $(document).on('click', '.editFile', function(){
-
-            var vp = $('video#player');
-            vp.find('source').remove();
-            video_name = $(this).attr('data-path');
-            var path = $(this).attr('data-path');
-            var ext = path;
-            ext = ext.split('.');
-            ext = ext[ext.length-1];
-
-            //加入 source 元素
-            vp.append('<source src="/storage/' + path + '" type="video/' + ext + '">');
-
-            //重新讀取 video 的 source 元素
-            player.load();
-
-//            if ($('video#player > source').attr('src') == undefined) {
-//                $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
-//                return false;
-//            }else{
-                $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot').attr('disabled', false);
-//            }
-        });
-
-        //取得切割開始時間
-        $(document).on('click', '#getStartTime', function(){
-            $('#start_time').val( toHHMMSS(player.currentTime) );
-        });
-
-        //取得切割結束時間
-        $(document).on('click', '#getEndTime', function(){
-            $('#end_time').val( toHHMMSS(player.currentTime) );
-        });
-
-        //切割影片
-        $(document).on('click', '#btn_split', function(){
-            //確認欲處理的時間是否有正確配置
-            if( checkTime() != true ) return false;
-
-            if ( $('#start_time').val() == "" || $('#end_time').val() == "" )
-            {
-                alert('請先確實選擇欲切割之起始與結束時間，謝謝。');
-                return false;
-            }
-
-            var obj = {};
-            obj['start_time'] = $('#start_time').val();
-            obj['end_time'] = $('#end_time').val();
-            obj['file_path'] = $('video#player > source').attr('src');
-            obj['video_name'] = video_name;
-            socket.emit('split_video', obj);
-
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
-        });
-
-        //擷圖
-        $(document).on('click', '#btn_snapshot', function(){
-            //確認欲處理的時間是否有正確配置
-            if( checkTime() != true ) return false;
-
-            var obj = {};
-            obj['current_time'] = player.currentTime;
-            obj['file_path'] = $('video#player > source').attr('src');
-            obj['video_name'] = video_name;
-            socket.emit('snapshot', obj);
-
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
-        });
-
-        //轉成 mp3
-        $(document).on('click', '#btn_mp3', function(){
-            //確認欲處理的時間是否有正確配置
-            if( checkTime() != true ) return false;
-
-            var obj = {};
-            obj['start_time'] = $('#start_time').val();
-            obj['end_time'] = $('#end_time').val();
-            obj['file_path'] = $('video#player > source').attr('src');
-            obj['video_name'] = video_name;
-            socket.emit('mp3', obj);
-
-            $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
-        });
-
-        //刪除檔案
-        $(document).on('click', 'input.deleteFile', function(){
-            var btn = $(this);
-            var path = btn.attr('data-path');
-            if( confirm('確定要刪除檔案?') )
-            {
-                $.ajax({
-                    method: 'POST',
-                    url: '/youtube/deleteFile',
-                    data: {
-                        path: path,
-                        _token:$('meta[name="csrf-token"]').attr('content')
-                    },
-                    //dataType: 'html',
-                    //timeout:{},
-                    statusCode: {
-                        404: function(){ alert('找不到頁面'); },
-                        500: function(){ alert('內部伺服器錯誤'); }
-                    },
-                    //beforeSend: function(){},
-                    //headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-                }).done(function( html ){
-                    //alert( html );
-                    if( parseInt(html) >= 1 )
-                    {
-                        //alert('刪除檔案成功');
-                        //location.reload();
-
-                        //刪除按鈕元素即連結元素
-                        btn.parent('p').remove();
-                    }
-                    else
-                    {
-                        alert('刪除失敗…');
-                    }
-                }).fail(function(e){
-                    console.log(e);
-                    //alert('傳遞失敗。請稍候再試，或是與程式設計人員聯絡，謝謝。' + '\n\n' + e.responseText);
-                }).always(function(){});
+    //全不選
+    $("#unselect_all").on('click', function(){
+        $("input[type=checkbox]").prop({checked: false});
+        var unchecked_arr = [], checkbox_cnt = 0;
+        $.each($("input[type=checkbox]"), function(k, v){
+            checkbox_cnt++;
+            if ($(v).prop("checked") == false) {
+                unchecked_arr[k] = 0;
             }
         });
+
+        if (checkbox_cnt == unchecked_arr.length) {
+            $("#btn_merge, #btn_rebuild").prop({disabled: true});
+        }
+    });
+
+
+    //點修改檔名效果
+    $(document).on('click', '.renameFile', function() {
+        $("#file_name_area").html('');
+
+        var old_name = $(this).attr('data-path');
+        var input_content = '輸入新檔名：<input type="text" id="new_name" value="'+old_name+'" size="30" /><input type="button" id="upd_new_name" value="確定" /><input type="hidden" id="old_name" value="" />';
+
+        $("#file_name_area").append(input_content).css({"padding":"15px","background-color": "#ffb1a6"});
+        $("#old_name").val($("#new_name").val());
+
+        $(".cancel_rename").val('更名').attr("class", "renameFile").removeAttr("style").parent('p').removeAttr("style");
+
+        $("#file_name_area").append('<input type="button" class="cancel_rename" value="取消" />');
+
+        if ($("input#new_name").val() == old_name) {
+            $(this).val('取消').attr('class', 'cancel_rename').css({"background-color": "#ff0000", "color": "#ffffff"});
+            $(this).parent('p').css({"padding": "5px 0px 5px 0px", "background-color": "#ffb1a6"});
+        }
+    });
+
+    //點編輯按鈕時的效果
+    $(document).on('click', '.editFile', function() {
+        $('p').removeAttr('style');
+        if ($(this).attr('data-path') == $("#video_name").html()) {
+            $(this).parent('p').css({"padding": "5px 0px 5px 0px", "background-color": "#ffb1a6"});
+        }
+    });
+
+    //點檔名空白處效果
+    $(document).on('click', '#single_file', function() {
+        $('p').css({"padding": "", "background-color": "", "cursor": "pointer"});
+        if ($(".editFile").attr('data-path') == $(".preview").html()) {
+            $(this).css({"padding": "5px 0px 5px 0px", "background-color": "#ffb1a6", "cursor": "pointer"});
+        }
+    });
+
+
+    //取消修改檔名
+    $(document).on('click', '.cancel_rename', function() {
+        $("#file_name_area").html('').removeAttr("style");
+
+        $(".cancel_rename").val('更名').attr("class", "renameFile").removeAttr("style").parent('p').removeAttr("style");
+
+        $(this).val('更名').attr('class', 'renameFile').css({"background-color": "", "color": "#000000"});
+        $(this).parent('p').css({"padding": "0px", "background-color": ""});
+    });
+
+    //修改檔名
+    $(document).on('click', '#upd_new_name', function() {
+        var old_name = $("input#old_name").val();
+        var new_name = $("#new_name").val();
+        var _token = $('div#csrf-token').html();
+
+        $.ajax({
+            method: 'get',
+            url: '/youtube/updFileName',
+            data: {
+//                _token:_token,
+                old_name:old_name,
+                new_name:new_name
+            },
+            statusCode: {
+                404: function () {
+                    alert('找不到頁面');
+                },
+                500: function () {
+                    alert('內部伺服器錯誤');
+                }
+            },
+            headers: {'X-CSRF-TOKEN': _token}
+        }).done(function (html) {
+            //alert(html);
+            if (parseInt(html) != 0) {
+                alert('更新檔名成功');
+                location.reload();
+            }
+            else {
+                alert('更新檔名失敗…');
+            }
+        }).fail(function(e){
+            console.log(e);
+        });
+    });
+
+    //刪除、修改按鈕控制
+    $("#btn_open_delete_edit").on('click', function(){
+        var open_delete = this;
+        if ($(open_delete).val() == 1) {
+            $(open_delete).val(0).html('開啟刪除/修改檔名');
+
+            $(".deleteFile, .renameFile").css('display', 'none');
+        }else {
+            $(open_delete).val(1).html('關閉刪除/修改檔名');
+            $(".deleteFile, .renameFile").css('display', 'block');
+        }
+    });
+
+
+
+
+    //偵測 url 是否有貼上內容
+    $('input#url').bind('paste', function () {
+        var element = this;
+        setTimeout(function() {
+            var text = $(element).val();
+            if (text != '') {
+                count_to_open_btn();
+            }
+        }, 100);
+    });
+
+    //偵測 url 是否為空
+    $('input#url').bind('keyup', function () {
+        var element = this;
+        setTimeout(function() {
+            var text = $(element).val();
+            if (text == '') {
+                $("#btn_download").attr('disabled', true);
+            }
+        }, 100);
 
     });
 
 
-    //確認欲處理的時間是否有正確配置
-    function checkTime()
-    {
-        var bool = true;
-        var start_time = $('#start_time').val();
-        var end_time = $('#end_time').val();
-        if( start_time >= end_time )
-        {
-            alert('開始時間不能大於等於結束時間喔!!');
-            bool = false;
-        }
-        return bool;
+
+    $( "#video-list" ).button().on( "click", function() {
+        dialog.dialog( "open" );
+    });
+
+    //頁面偵測是否有影片可切割擷圖
+    if ($('video#player > source').attr('src') == undefined) {
+        $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot, #btn_mp3').attr('disabled', true);
+        return false;
+    }else{
+        $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot, #btn_mp3').attr('disabled', false);
     }
 
-    //秒數格式化成 HH:MM:SS
-    function toHHMMSS(sec_num){
-        var sec_num = parseFloat(sec_num, 10); // don't forget the second param
-        var hours   = Math.floor(sec_num / 3600);
-        var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-        var seconds = sec_num - (hours * 3600) - (minutes * 60);
 
-        if (hours   < 10) {hours   = "0"+hours;}
-        if (minutes < 10) {minutes = "0"+minutes;}
-        if (seconds < 10) {seconds = "0"+seconds;}
-        return hours+':'+minutes+':'+seconds;
-    }
+
+
+
+
+});
+
 </script>

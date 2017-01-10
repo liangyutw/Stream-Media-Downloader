@@ -20,4 +20,7 @@ Route::get('/test{id?}.html',                                                 ['
 //youtube 影片下載器
 Route::get('/youtube', 				'YoutubeController@index'); //主頁面
 Route::get('/youtube/getFiles', 	'YoutubeController@getFiles'); //取得檔案列表
-Route::post('/youtube/deleteFile',  'YoutubeController@deleteFile'); //刪除影片
+Route::get('/youtube/deleteFile/{path?}',  'YoutubeController@deleteFile'); //刪除影片
+Route::get('/youtube/deleteTsFile/{del_ts_cnt}',  'YoutubeController@deleteTsFile'); //刪除 TS 暫存影片
+Route::get('/youtube/updFileName',  'YoutubeController@updateFileName'); //更換檔名
+Route::get('/youtube/deleteRebuildFile/{del_file}',  'YoutubeController@deleteRebuildFile'); //刪除 轉換重制的原影片

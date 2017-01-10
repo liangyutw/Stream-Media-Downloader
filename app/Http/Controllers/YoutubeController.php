@@ -66,17 +66,64 @@ class YoutubeController extends Controller
     }
 
     //刪除檔案
-    public function deleteFile(Request $request)
+    public function deleteFile($path = null)
     {
-        $path = $request->input('path');
-
+        //echo $path;exit;
         $flag = 0;
         if( $this->disk->exists( $path ) )
-        //if( file_exists('storage/'.$path) )
         {
             if($this->disk->delete( $path )) $flag = 1;
-            //if(unlink(public_path().'/storage/'.$path)) $flag = 1;
         }
+        return $flag;
+    }
+
+    //刪除 ts 檔案
+    public function deleteTsFile($del_ts_cnt = 0)
+    {
+        if ($del_ts_cnt == 2) {
+            return 0;
+        }
+
+        $flag = 0;
+        foreach (glob(public_path().'/storage/*.ts') as $key => $val) {
+            $result = unlink($val);
+            $flag = 1;
+        }
+        //print_r(glob(public_path().'/storage/*.ts'));exit;
+        return $flag;
+    }
+
+    public function updateFileName(Request $Request)
+    {
+        //print_r($Request->all());exit;
+        $result = rename(public_path().'/storage/'.$Request->all()['old_name'], public_path().'/storage/'.$Request->all()['new_name']);
+        return ($result == true) ? $Request->all()['new_name'] : 0;
+    }
+
+
+    //刪除 轉換重制 檔案
+    public function deleteRebuildFile($del_file = null)
+    {
+        if (is_null($del_file)) {
+            return 0;
+        }
+
+        $result = [];
+
+        $arr = $this->_getFiles();
+        if (in_array($del_file, $arr)) {
+            $result['source'] = 1;
+        }
+        if (in_array('rebuild_'.$del_file, $arr)) {
+            $result['rebuild'] = 1;
+        }
+
+        $flag = 0;
+        if ($result['source'] == 1 and $result['rebuild'] == 1) {
+            unlink(public_path().'/storage/'.$del_file);
+            $flag = 1;
+        }
+//        print_r(glob(public_path().'/storage/rebuild_*.mp4'));exit;
         return $flag;
     }
 }
