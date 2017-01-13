@@ -59,6 +59,7 @@ io.on('connection', function(socket){
 
     //切割影片
     socket.on('split_video', function(obj){
+
         //socket.emit('server_msg', '[' + getTodayDate() + '] ' + data);
         //%(title)s_%(id)s.%(ext)s
         var ls = spawn("time",
@@ -85,25 +86,25 @@ io.on('connection', function(socket){
         //正常輸出
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
-        socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stdout => ' + data);
-    });
+            socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stdout => ' + data);
+        });
 
         //錯誤訊息輸出
         ls.stderr.on('data', (data) => {
             console.log(`stderr: ${data}`);
-        socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stderr => ' + data);
-    });
+            socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stderr => ' + data);
+        });
 
         //指令執行輸出
         ls.on('close', (code) => {
             console.log(`child process exited with code ${code}`);
 
-        //回傳執行結束代碼
-        socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'child process exited code => ' + code);
+            //回傳執行結束代碼
+            socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'child process exited code => ' + code);
 
-        //傳一個執行結束的代碼，到 web page 的 jquery 事件上，以便存取 Files
-        socket.emit('server_cmd_finished', code);
-    });
+            //傳一個執行結束的代碼，到 web page 的 jquery 事件上，以便存取 Files
+            socket.emit('server_cmd_finished', code);
+        });
     });
 
     //轉換影片
@@ -308,26 +309,28 @@ io.on('connection', function(socket){
         //正常輸出
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
-        socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stdout => ' + data);
-    });
+            socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stdout => ' + data);
+        });
 
         //錯誤訊息輸出
         ls.stderr.on('data', (data) => {
             console.log(`stderr: ${data}`);
-        socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stderr => ' + data);
-    });
+            socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'stderr => ' + data);
+        });
 
         //指令執行輸出
         ls.on('close', (code) => {
             console.log(`child process exited with code ${code}`);
 
-        //回傳執行結束代碼
-        socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'child process exited code => ' + code);
+            //回傳執行結束代碼
+            socket.emit('server_msg', '[' + getTodayDate() + '] ' + 'child process exited code => ' + code);
 
-        //傳一個執行結束的代碼，到 web page 的 jquery 事件上，以便存取 Files
-        socket.emit('server_cmd_finished', code);
+            //傳一個執行結束的代碼，到 web page 的 jquery 事件上，以便存取 Files
+            socket.emit('server_cmd_finished', code);
+        });
     });
-    });
+
+
 });
 
 //取得今天的日期，讓使用者送出訊息時參考用

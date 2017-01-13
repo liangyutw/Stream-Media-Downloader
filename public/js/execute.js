@@ -149,6 +149,7 @@ $(document).ready(function(){
     //播放軸的目前選擇時間
     player.addEventListener("seeked", function(){
         $('#current_time').val( toHHMMSS(player.currentTime) );
+        $('#btn_duration').val( toHHMMSS(player.duration) );
     });
 
     //編輯按鈕，開啟編輯模式 (會在播放器裡面加入 source 元素)
@@ -171,11 +172,17 @@ $(document).ready(function(){
         //重新讀取 video 的 source 元素
         player.load();
 
+
 //            if ($('video#player > source').attr('src') == undefined) {
 //                $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
 //                return false;
 //            }else{
         $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot').attr('disabled', false);
+
+        //按下編輯按鈕後，就把影片總時間取出
+        player.addEventListener("loadedmetadata", function() {
+            $("#btn_duration").val(player.duration);
+        });
 //            }
     });
 
@@ -212,10 +219,47 @@ $(document).ready(function(){
         $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
     });
 
+    // 切割被設定分鐘數影片
+    $(document).on('click', '#split_set_ok', function() {
+
+        var duration = $("#btn_duration").val(),
+            split_minute = $("#split_set_number").val(),
+            per_minute = 60*split_minute,
+            obj = {},
+            start = 0;
+        var split_part = Math.ceil(duration/per_minute);
+
+        if (confirm('這段影片總長 '+toHHMMSS(duration).substr(0, 8)+' 分鐘\n你設定 '+split_minute+' 分鐘切割成一段影片，將會切成 '+split_part+' 段影片\n要執行切割嗎?')) {
+            split_set_dialog.dialog( "close" );
+
+            for (var i=0;i < split_part; i++) {
+                obj[i] = {"start_time":"","end_time":""};
+                // 如果是最後一筆切割，使用最後的秒數
+                if ((i+1) == split_part) {
+                    obj[i].start_time = toHHMMSS((start+=per_minute)-per_minute);
+                    obj[i].end_time = toHHMMSS(duration);
+                    //minute[i] = '{"start_time":"'+toHHMMSS((start+=per_minute)-per_minute)+'"},{"end_time":"'+toHHMMSS(duration)+'"}';
+                }else {
+                    obj[i].start_time = toHHMMSS((start+=per_minute)-per_minute);
+                    obj[i].end_time = toHHMMSS(per_minute * (i + 1));
+                    //minute[i] = '{"start_time":"'+toHHMMSS((start += per_minute)-per_minute)+'"},{"end_time":"'+toHHMMSS(per_minute * (i + 1))+'"}';
+                }
+                obj[i].file_path = $('video#player > source').attr('src');
+                obj[i].video_name = video_name.replace('.mp4', '_'+(i+1)+'.mp4');
+                //console.log(obj[i]);
+                socket.emit('split_video', obj[i]);
+            }
+            //console.log(obj);
+
+        }
+    });
+
 
 
     //合併影片
     $(document).on('click', '#btn_merge', function(){
+        $("#btn_download, #btn_merge, #btn_rebuild").attr('disabled', true);
+
         var obj = {};
         //檢查有打勾的影片
         $("input[type=checkbox]").each(function(k, v) {
@@ -330,6 +374,19 @@ $(document).ready(function(){
                 alert('傳遞失敗。請稍候再試，或是與程式設計人員聯絡，謝謝。' + '\n\n' + e.responseText);
             }).always(function () {});
         }
+    });
+
+
+    //取影片資訊
+    $(document).on('click', '#btn_video_info', function(){
+        console.log(player.duration);
+        var obj = {};
+        obj['file_path'] = $('video#player > source').attr('src');
+        // obj['video_name'] = video_name;
+        //console.log(obj);
+        // socket.emit('video_info', obj);
+
+        $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
     });
 
 });

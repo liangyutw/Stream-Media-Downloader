@@ -74,10 +74,12 @@
                                 <div>切割起始時間：<input type="text" id="start_time" value="" /><input type="button" id="getStartTime" value="取得起始時間" /></div>
                                 <div>切割結束時間：<input type="text" id="end_time" value="" /><input type="button" id="getEndTime" value="取得結束時間" /></div>
                                 <button type="button" class="btn btn-primary" id="btn_split">切割影片</button>
+                                <button type="button" class="btn btn-primary" id="btn_split_by_minute">設定影片切割數</button>
                                 <button type="button" class="btn btn-primary" id="btn_merge">合併影片</button>
-                                <button type="button" class="btn btn-primary" id="btn_rebuild">重製影片</button>
+                                <button type="button" class="btn btn-primary" id="btn_rebuild">重製影片</button><BR>
                                 <button type="button" class="btn btn-primary" id="btn_snapshot">擷取圖片（png）</button>
                                 <button type="button" class="btn btn-primary" id="btn_mp3">擷取 MP3</button>
+                                <input type="hidden" class="btn btn-primary" id="btn_duration" value="">
                             </div>
 
                         </div>
@@ -93,7 +95,17 @@
                         </div>
                     </div>
 
+
+                    <div style='display:none;'>
+                        <div id='split_area' title="設定每一切割影片的分鐘數(可拖曳視窗)" style='padding:10px;background:#fff;'>
+                            每一影片切：<input type="text" id="split_set_number" value="" size="2">分鐘<BR>
+                            <input type="button" id="split_set_ok" value="確定" />
+                        </div>
+                    </div>
+
                     <div id="concat_string"></div>
+
+
                 </div>
 
             </div>
@@ -122,6 +134,18 @@
             }
         }
     });
+
+    split_set_dialog = $( "#split_area" ).dialog({
+        autoOpen: false,
+        height: "auto",
+        width: "auto",
+        modal: true,
+        buttons: {
+            Close: function() {
+                split_set_dialog.dialog( "close" );
+            }
+        }
+    });
 </script>
 
 <script src="/js/execute.js"></script>
@@ -130,6 +154,42 @@
 <script>
 
 $(function(){
+
+    $( "#btn_split_by_minute" ).button().on( "click", function() {
+        split_set_dialog.dialog( "open" );
+    });
+
+
+    //切割分鐘數
+//    $("#split_set_ok").on('click', function(){
+//
+//        var duration = $("#btn_duration").val(),
+//            split_minute = $("#split_set_number").val(),
+//            per_minute = 60*split_minute,
+//            minute = [],
+//            start = 0;
+//        var split_part = Math.round(duration/per_minute);
+//
+//
+//
+//        for (var i=0;i < split_part; i++) {
+//
+//            // 如果是最後一筆切割，使用最後的秒數
+//            if ((i+1) == split_part) {
+//                minute[i] = toHHMMSS((start+=per_minute)-per_minute)+'-'+toHHMMSS(duration);
+//            }else {
+//                minute[i] = toHHMMSS((start += per_minute) - per_minute) + '-' + toHHMMSS(per_minute * (i + 1));
+//            }
+//        }
+//        console.log(minute);
+//
+//        if (confirm('這段影片總長 '+toHHMMSS(duration).substr(0, 8)+' 分鐘\n你設定 '+split_minute+' 分鐘切割成一段影片，將會切成 '+split_part+' 段影片\n要執行切割嗎?')) {
+//            split_set_dialog.dialog( "close" );
+//        }
+//
+//    });
+
+
     //預設下載、合併按鈕不可點
     $("#btn_download, #btn_merge, #btn_rebuild").attr('disabled', true);
 
