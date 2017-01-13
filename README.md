@@ -26,3 +26,6 @@ resources/views/youtube/home.blade.php<BR>
 
 --update 2017-01-10--<BR>
 更新頁面操作功能、增加合併影片、重製影片、修改檔名等功能<BR>
+<BR>
+--update 2017-01-13--<BR>
+新增按分鐘數切割影片功能
