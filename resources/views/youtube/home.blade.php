@@ -1,5 +1,4 @@
 <style>
-    p#single_file {padding:5px 0px 5px 0px;margin:0px;border:0px solid #000;}
     p:hover {background-color: #eaeaea;}
 </style>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -21,7 +20,6 @@
 
 
                     <button type="button" class="btn btn-primary" id="video-list">影片列表</button>
-                    <button type="button" class="btn btn-primary" onclick="if(confirm('重整可能使程序錯誤，請確認未執行程序!')){location.reload();}else{return false;}">頁面重整</button>
 
                     <div style='display:none;'>
                         <div id='inline' title="編輯影片(可拖曳視窗)" style='padding:10px;background:#fff;'>
@@ -43,9 +41,9 @@
                                         ?>
                                         <p id="single_file" style="cursor: pointer;">
                                             <input type="checkbox" class="mergeFile" data-path="{{ $value }}" style="display:none;"/>
-                                            <input type="button" class="editFile" value="編輯" data-path="{{ $value }}" style=" float: left;" />
-                                            <input type="button" class="deleteFile" value="刪除" data-path="{{ $value }}" style="display:none; float: left;" />
-                                            <input type="button" class="renameFile" value="更名" data-path="{{ $value }}" style="display:none; float: left;" />
+                                            <input type="button" class="editFile" value="播放" data-path="{{ $value }}" style=" float: left; margin-right: 5px;" />
+                                            <input type="button" class="deleteFile" value="刪除" data-path="{{ $value }}" style="display:none; float: left; margin-right: 5px;" />
+                                            <input type="button" class="renameFile" value="更名" data-path="{{ $value }}" style="display:none; float: left; margin-right: 5px;" />
                                             <span><?php echo ' '.($i+1).' - ';?></span>
                                             <a class="preview" href="{{ asset('storage/'.$value) }}" target="_blank" title="{{ $value }}">{{ $value }}</a>
                                             <span style="font-size: 10pt;"><?php echo round(filesize(public_path().'/storage/'.$value)/1024/1024, 2);?>MB</span>
@@ -90,8 +88,14 @@
 
                     <div class="form-group">
                         <div class="panel panel-primary">
-                            <div class="panel-heading">伺服器回傳訊息</div>
-                            <div class="panel-body pre-scrollable" id="msg_board" style="overflow-y: scroll;height:500px;max-height:500px;"></div>
+                            <div class="panel-heading">處理狀態：<span id="process_end_msg">暫無事件處理</span><span>。處理完成後建議 <button type="button" class="btn btn-primary" onclick="location.reload();">頁面重整</button></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading"></div><button type="button" id="btn_show_process" onclick="$('#msg_board').toggle();">顯示/關閉 伺服器回傳訊息</button>
+                            <div class="panel-body pre-scrollable" id="msg_board" style="overflow-y: scroll;height:500px;max-height:500px; display: none;"></div>
                         </div>
                     </div>
 
@@ -155,43 +159,13 @@
 
 $(function(){
 
+    //預設下載、合併按鈕不可點
+    $("#btn_download, #btn_merge, #btn_rebuild, #btn_split_by_minute").attr('disabled', true);
+
+    //開啟設定分鐘數的 dialog
     $( "#btn_split_by_minute" ).button().on( "click", function() {
         split_set_dialog.dialog( "open" );
     });
-
-
-    //切割分鐘數
-//    $("#split_set_ok").on('click', function(){
-//
-//        var duration = $("#btn_duration").val(),
-//            split_minute = $("#split_set_number").val(),
-//            per_minute = 60*split_minute,
-//            minute = [],
-//            start = 0;
-//        var split_part = Math.round(duration/per_minute);
-//
-//
-//
-//        for (var i=0;i < split_part; i++) {
-//
-//            // 如果是最後一筆切割，使用最後的秒數
-//            if ((i+1) == split_part) {
-//                minute[i] = toHHMMSS((start+=per_minute)-per_minute)+'-'+toHHMMSS(duration);
-//            }else {
-//                minute[i] = toHHMMSS((start += per_minute) - per_minute) + '-' + toHHMMSS(per_minute * (i + 1));
-//            }
-//        }
-//        console.log(minute);
-//
-//        if (confirm('這段影片總長 '+toHHMMSS(duration).substr(0, 8)+' 分鐘\n你設定 '+split_minute+' 分鐘切割成一段影片，將會切成 '+split_part+' 段影片\n要執行切割嗎?')) {
-//            split_set_dialog.dialog( "close" );
-//        }
-//
-//    });
-
-
-    //預設下載、合併按鈕不可點
-    $("#btn_download, #btn_merge, #btn_rebuild").attr('disabled', true);
 
     //偵測有勾選才開啟合併影片按鈕
     $("input[type=checkbox]").on('click', function() {

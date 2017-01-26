@@ -55,92 +55,93 @@ $(document).ready(function(){
             var code = parseInt(code);
         }
 
-        switch( code )
-        {
-            case 0:
-                if (confirm('處理完畢!\n是否重整?')){
-                    location.reload();
-                }
-                //getS3Files();
-                break;
+        if (code == 0) {
+            $("#process_end_msg").html('已完成!');
+        }else {
 
-            case 1:
-                alert('Node.js 程式執行出錯與終止，請至伺服器查看');
-            case 2:
-                cnt+=1;
-                //合併影片
+            switch (code) {
+                // case 0:
+                //     if (confirm('處理完畢!\n是否重整?')) {
+                //         location.reload();
+                //     }
+                    //getS3Files();
+                    // break;
 
-                if (Object.keys(path_arr).length == cnt) {
-                    $.each(path_arr, function(k, v) {
-                        concat_name += "/usr/share/nginx/html/laravel/public"+v.replace('mp4', 'ts')+'|';
+                case 1:
+                    alert('Node.js 程式執行出錯與終止，請至伺服器查看');
+                case 2:
+                    cnt += 1;
+                    //合併影片
+
+                    if (Object.keys(path_arr).length == cnt) {
+                        $.each(path_arr, function (k, v) {
+                            concat_name += "/usr/share/nginx/html/laravel/public" + v.replace('mp4', 'ts') + '|';
+                        });
+                        //$("#concat_string").html(concat_name.replace(/\|+$/g, ''));
+                        socket.emit('concat_video', concat_name.replace(/\|+$/g, ''));
+                    }
+                    break;
+                case 3:
+
+                    //刪除轉換用的 TS 檔
+                    del_ts_cnt++;
+                    var _token = $('div#csrf-token').html();
+                    $.ajax({
+                        method: 'get',
+                        url: '/youtube/deleteTsFile/' + del_ts_cnt,
+                        data: {},
+                        statusCode: {
+                            404: function () {
+                                alert('找不到頁面');
+                            },
+                            500: function () {
+                                alert('內部伺服器錯誤');
+                            }
+                        },
+                        headers: {'X-CSRF-TOKEN': _token}
+                    }).done(function (html) {
+                        //console.log(html);
+                        if (parseInt(html) == 1) {
+                            if (confirm('合併完成!\n是否重整?')) {
+                                location.reload();
+                            }
+                        }
+                        else if (parseInt(html) == -1) {
+                            alert('合併失敗…');
+                        }
                     });
-                    //$("#concat_string").html(concat_name.replace(/\|+$/g, ''));
-                    socket.emit('concat_video', concat_name.replace(/\|+$/g, ''));
-                }
-                break;
-            case 3:
+                    break;
+                case 4:
+                    var _token = $('div#csrf-token').html();
 
-                //刪除轉換用的 TS 檔
-                del_ts_cnt++;
-                var _token = $('div#csrf-token').html();
-                $.ajax({
-                    method: 'get',
-                    url: '/youtube/deleteTsFile/'+del_ts_cnt,
-                    data: {},
-                    statusCode: {
-                        404: function () {
-                            alert('找不到頁面');
+                    $.ajax({
+                        method: 'get',
+                        url: '/youtube/deleteRebuildFile/' + del_file,
+                        data: {},
+                        statusCode: {
+                            404: function () {
+                                alert('找不到頁面');
+                            },
+                            500: function () {
+                                alert('內部伺服器錯誤');
+                            }
                         },
-                        500: function () {
-                            alert('內部伺服器錯誤');
+                        headers: {'X-CSRF-TOKEN': _token}
+                    }).done(function (html) {
+                        // console.log(html);
+                        if (parseInt(html) == 1) {
+                            if (confirm('重製完成!\n是否重整?')) {
+                                location.reload();
+                            }
                         }
-                    },
-                    headers: {'X-CSRF-TOKEN': _token}
-                }).done(function (html) {
-                    //console.log(html);
-                    if (parseInt(html) == 1) {
-                        if (confirm('合併完成!\n是否重整?')){
-                            location.reload();
+                        else if (parseInt(html) == -1) {
+                            alert('重製失敗…');
                         }
-                    }
-                    else if (parseInt(html) == -1) {
-                        alert('合併失敗…');
-                    }
-                });
-                break;
-            case 4:
-                var _token = $('div#csrf-token').html();
-
-                $.ajax({
-                    method: 'get',
-                    url: '/youtube/deleteRebuildFile/'+del_file,
-                    data: {},
-                    statusCode: {
-                        404: function () {
-                            alert('找不到頁面');
-                        },
-                        500: function () {
-                            alert('內部伺服器錯誤');
-                        }
-                    },
-                    headers: {'X-CSRF-TOKEN': _token}
-                }).done(function (html) {
-                    // console.log(html);
-                    if (parseInt(html) == 1) {
-                        if (confirm('重製完成!\n是否重整?')){
-                            location.reload();
-                        }
-                    }
-                    else if (parseInt(html) == -1) {
-                        alert('重製失敗…');
-                    }
-                });
-
-
-                break;
-
+                    });
+                    break;
+            }
         }
-        $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
+        $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot, #btn_split_by_minute').attr('disabled', true);
     });
 
     //取得 video player
@@ -177,7 +178,9 @@ $(document).ready(function(){
 //                $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
 //                return false;
 //            }else{
-        $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot').attr('disabled', false);
+        $('#btn_split_by_minute').removeClass('ui-button ui-corner-all ui-widget ui-button-disabled ui-state-disabled');
+        $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot, #btn_split_by_minute').attr('disabled', false);
+
 
         //按下編輯按鈕後，就把影片總時間取出
         player.addEventListener("loadedmetadata", function() {
@@ -208,6 +211,9 @@ $(document).ready(function(){
             return false;
         }
 
+        dialog.dialog( "close" );
+        $("#process_end_msg").html('影片切割中...');
+
         var obj = {};
         obj['start_time'] = $('#start_time').val();
         obj['end_time'] = $('#end_time').val();
@@ -231,6 +237,8 @@ $(document).ready(function(){
 
         if (confirm('這段影片總長 '+toHHMMSS(duration).substr(0, 8)+' 分鐘\n你設定 '+split_minute+' 分鐘切割成一段影片，將會切成 '+split_part+' 段影片\n要執行切割嗎?')) {
             split_set_dialog.dialog( "close" );
+            dialog.dialog( "close" );
+            $("#process_end_msg").html('影片切割中...');
 
             for (var i=0;i < split_part; i++) {
                 obj[i] = {"start_time":"","end_time":""};
@@ -258,6 +266,8 @@ $(document).ready(function(){
 
     //合併影片
     $(document).on('click', '#btn_merge', function(){
+        dialog.dialog( "close" );
+        $("#process_end_msg").html('影片合併中...');
         $("#btn_download, #btn_merge, #btn_rebuild").attr('disabled', true);
 
         var obj = {};
@@ -282,6 +292,8 @@ $(document).ready(function(){
 
     //轉換格式影片
     $(document).on('click', '#btn_rebuild', function(){
+        dialog.dialog( "close" );
+        $("#process_end_msg").html('影片重製中...');
         $("#btn_download, #btn_merge, #btn_rebuild").attr('disabled', true);
 
         var obj = {};
@@ -311,6 +323,9 @@ $(document).ready(function(){
         //確認欲處理的時間是否有正確配置
         if( checkTime() != true ) return false;
 
+        dialog.dialog( "close" );
+        $("#process_end_msg").html('擷取圖片中...');
+
         var obj = {};
         obj['current_time'] = player.currentTime;
         obj['file_path'] = $('video#player > source').attr('src');
@@ -324,6 +339,9 @@ $(document).ready(function(){
     $(document).on('click', '#btn_mp3', function(){
         //確認欲處理的時間是否有正確配置
         if( checkTime() != true ) return false;
+
+        dialog.dialog( "close" );
+        $("#process_end_msg").html('轉 mp3中...');
 
         var obj = {};
         obj['start_time'] = $('#start_time').val();

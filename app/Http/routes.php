@@ -15,8 +15,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test{id?}.html',                                                 ['as' => 'test_index', 'uses'=>"TestController@index"]);
-
+//Route::get('/test{id?}.html',                                                 ['as' => 'test_index', 'uses'=>"TestController@index"]);
+Route::get('/chat',  'TestController@chatroom');
 //youtube 影片下載器
 Route::get('/youtube', 				'YoutubeController@index'); //主頁面
 Route::get('/youtube/getFiles', 	'YoutubeController@getFiles'); //取得檔案列表
@@ -24,3 +24,10 @@ Route::get('/youtube/deleteFile/{path?}',  'YoutubeController@deleteFile'); //�
 Route::get('/youtube/deleteTsFile/{del_ts_cnt}',  'YoutubeController@deleteTsFile'); //刪除 TS 暫存影片
 Route::get('/youtube/updFileName',  'YoutubeController@updateFileName'); //更換檔名
 Route::get('/youtube/deleteRebuildFile/{del_file}',  'YoutubeController@deleteRebuildFile'); //刪除 轉換重制的原影片
+Route::get('/chat/get_massage', ['as' => 'chat_get_msg', 'uses'=>"TestController@get_chatroom"]);
+
+
+
+
+Route::post('/chat/upload', ['as' => 'chat_upload', 'uses'=>"TestController@upload_chat_pic"]);
+Route::post('/chat/save', ['as' => 'chat_save', 'uses'=>"TestController@save_chatroom"]);
