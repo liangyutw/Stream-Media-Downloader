@@ -6,15 +6,13 @@ app.get('/chatroom', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
 
-var user_count = 0;
-
 //當新的使用者連接進來的時候
 io.on('connection', function(socket){
-
+    
     //新user
     socket.on('add user',function(msg){
         socket.username = msg;
-        console.log("new user:"+msg+" logged.");
+        //console.log("new user:"+msg+" logged.");
         io.emit('add user',{
             username: socket.username
         });
@@ -22,19 +20,20 @@ io.on('connection', function(socket){
 
     //監聽新訊息事件
     socket.on('chat message', function(msg){
-
-        console.log(socket.username+":"+msg);
-
-        //發佈新訊息
-        io.emit('chat message', {
+        chat_msg = {
             username:socket.username,
             msg:msg
-        });
+        };
+        //console.log(chat_msg);
+        //console.log(socket.username+":"+msg);
+
+        //發佈新訊息
+        io.emit('chat message', chat_msg);
     });
 
     //left
     socket.on('disconnect',function(){
-        console.log(socket.username+" left.");
+        //console.log(socket.username+" left.");
         io.emit('user left',{
             username:socket.username
         });

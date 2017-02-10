@@ -1,0 +1,50 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font: 13px Helvetica, Arial; }
+
+#m{
+    width: 89%;
+    /*margin-bottom:5px;*/
+    position: fixed;
+    /*bottom: 0;*/
+    float: left;
+
+}
+#send{
+    float: right;
+    width: 10%;
+    /*margin: .5%;*/
+
+    /*position: fixed;*/
+    /*bottom: 0;*/
+    /*right:5px;*/
+}
+.input_area{
+    width:100%;
+    top:71%;
+    position: absolute;
+}
+
+#message_block{
+    width:98%;
+    height:70%;
+    position: absolute;
+    margin: .5%;
+    top:0;
+    bottom:0;
+    overflow:auto;
+    border: solid 1px #ccc;
+
+}
+#messages {
+    list-style-type: none;
+    margin:.9%;
+
+    padding: 0;
+}
+#messages li {
+    padding: 5px 10px;
+    font-size:16pt;
+}
+#messages li:nth-child(odd) {
+    /*background: #eee;*/
+}

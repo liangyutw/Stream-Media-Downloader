@@ -40,3 +40,48 @@ function toHHMMSS(sec_num){
     if (seconds < 10) {seconds = "0"+seconds;}
     return hours+':'+minutes+':'+seconds;
 }
+
+//取得今天的日期，讓使用者送出訊息時參考用
+function getTodayDate() {
+    var str = '';
+
+    // 宣告日期物件
+    var today = new Date();
+
+    // 年
+    var today_year = today.getFullYear();
+    str += today_year;
+
+    // 月
+    var today_month = today.getMonth() + 1;
+    if (today_month >= 10)
+        str += '-' + today_month;
+    else
+        str += '-0' + today_month;
+
+    // 日
+    var today_date = today.getDate();
+    if (today_date >= 10)
+        str += '-' + today_date;
+    else
+        str += '-0' + today_date;
+
+    var today_hour = today.getHours();
+    if (today_hour >= 10)
+        str += ' ' + today_hour;
+    else
+        str += ' 0' + today_hour;
+
+    var today_minute = today.getMinutes();
+    if (today_minute >= 10)
+        str += ':' + today_minute;
+    else
+        str += ':0' + today_minute;
+
+    var today_second = today.getSeconds();
+    if (today_second >= 10)
+        str += ':' + today_second;
+    else
+        str += ':0' + today_second;
+    return str;
+}

@@ -13,7 +13,8 @@ return [
     |
     */
 
-    'fetch' => PDO::FETCH_CLASS,
+    //'fetch' => PDO::FETCH_CLASS,
+    'fetch' => PDO::FETCH_ASSOC,
 
     /*
     |--------------------------------------------------------------------------
@@ -118,6 +119,7 @@ return [
             'host'     => '127.0.0.1',
             'port'     => 6379,
             'database' => 0,
+            'password' => 'n!KpH8a+z?',     //webuser_2 使用密碼
         ],
 
     ],
