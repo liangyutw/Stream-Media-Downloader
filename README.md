@@ -34,3 +34,6 @@ resources/views/youtube/home.blade.php<BR>
 
 --update 2017-02-10--<BR>
 修改聊天室寫重覆訊息，新增聊天室傳圖片、檔案、下載<br>新增推播功能、寄信功能(nodemail)
+
+--update 2017-03-08--<BR>
+修改聊天室功能(歷史訊息、限制建立聊天室數量、改寫聊天室訊息寫入json的格式、增加錯誤訊息顯示)
