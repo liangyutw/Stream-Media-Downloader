@@ -4,9 +4,9 @@ body { font: 13px Helvetica, Arial; }
 #m{
     width: 89%;
     /*margin-bottom:5px;*/
-    position: fixed;
+    position: absolute;
     /*bottom: 0;*/
-    float: left;
+    /*float: left;*/
 
 }
 #send{
@@ -14,23 +14,23 @@ body { font: 13px Helvetica, Arial; }
     width: 10%;
     /*margin: .5%;*/
 
-    /*position: fixed;*/
+    position: absolute;
     /*bottom: 0;*/
-    /*right:5px;*/
+    right:0px;
 }
 .input_area{
-    width:100%;
-    top:71%;
+    width:60%;
+    top:88%;
     position: absolute;
 }
 
 #message_block{
-    width:98%;
-    height:70%;
+    width:60%;
+    height:660px;
     position: absolute;
-    margin: .5%;
-    top:0;
-    bottom:0;
+    /*margin: .5%;*/
+    top:160px;
+    /*bottom:0;*/
     overflow:auto;
     border: solid 1px #ccc;
 

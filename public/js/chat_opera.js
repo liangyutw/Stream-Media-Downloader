@@ -2,10 +2,10 @@ var socket = io('http://192.168.136.128:4000');
 var image_height = '';
 
 $(document).ready(function(){
-    
+
     showMessage();
 
-    var name = prompt("請輸入暱稱","guest");
+    var name = user_name;//prompt("請輸入暱稱","guest");
 
     if(name=="" || name==null){
         name = "guest";
@@ -29,11 +29,23 @@ $(document).ready(function(){
 //            });
 
     $('#send').click(function(){
-        //var text = $('#m').val();
+        var msg = $.trim($('#m').val()),
+            getTime = getTodayDate_noformat(),
+            msg_token = utoa(user_id+'_'+msg+'_'+getTime).replace('/','|');
+
+        if(msg == "") {
+            alert('請輸入訊息');
+            return false;
+        }
+
         var msg_data = {
             name:name,
-            text:$('#m').val()
+            chat_id:chat_id,
+            msg_token:msg_token,
+            //text:'<div style="padding: 0px 0px 0px 5px;margin-left: 15px;background-color: #eaeaea;">'+msg+' <a href=/chat/del_msg/'+chat_id+'/'+msg_token+' style=font-size:10pt;>刪除</a> <span style=font-size:10pt;color:#aaa;>'+getTodayDate()+'</span></div>'
+            text:msg
         };
+
         appendMessage(msg_data);
         $('#m').val('');
 
@@ -41,7 +53,13 @@ $(document).ready(function(){
     });
 
     $("#m").keydown(function(event){
-        if ( event.which == 13 ){
+        //console.log(event);
+        if (event.shiftKey == true && event.which == 13) {
+            $(this).attr("rows","3").css({"overflow":"auto"});
+            $(this).focus();
+        }
+        else if ( event.which == 13 ){
+            //$('#m').replace('\n', '').attr("rows", 1);
             $('#send').click();
         }
     });
@@ -52,6 +70,5 @@ $(document).ready(function(){
         var image = e.originalEvent.dataTransfer.files;
         createFormData(image);
     });
-
 
 });

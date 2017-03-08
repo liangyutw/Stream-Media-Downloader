@@ -170,6 +170,9 @@ $(document).ready(function(){
         //加入 source 元素
         vp.append('<source src="/storage/' + path + '" type="video/' + ext + '">');
 
+        $('#btn_split_by_minute').removeClass('ui-button ui-corner-all ui-widget ui-button-disabled ui-state-disabled');
+        $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot, #btn_split_by_minute, #btn_mp3').attr('disabled', false);
+
         //重新讀取 video 的 source 元素
         player.load();
 
@@ -178,8 +181,7 @@ $(document).ready(function(){
 //                $('#getStartTime, #getEndTime, #btn_split, #btn_download, #btn_snapshot').attr('disabled', true);
 //                return false;
 //            }else{
-        $('#btn_split_by_minute').removeClass('ui-button ui-corner-all ui-widget ui-button-disabled ui-state-disabled');
-        $('#getStartTime, #getEndTime, #btn_split, #btn_snapshot, #btn_split_by_minute').attr('disabled', false);
+
 
 
         //按下編輯按鈕後，就把影片總時間取出

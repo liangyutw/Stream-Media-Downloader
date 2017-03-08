@@ -168,13 +168,13 @@ $(function(){
     });
 
     //偵測有勾選才開啟合併影片按鈕
-    $("input[type=checkbox]").on('click', function() {
-        if ($(this).prop("checked") == true) {
-            $("#btn_merge, #btn_rebuild").attr("disabled", false);
-        }else{
-            $("#btn_merge, #btn_rebuild").attr("disabled", true);
-        }
-    });
+//    $("input[type=checkbox]").on('click', function() {
+//        if ($(this).prop("checked") == true) {
+//            $("#btn_merge, #btn_rebuild").attr("disabled", false);
+//        }else{
+//            $("#btn_merge, #btn_rebuild").attr("disabled", true);
+//        }
+//    });
 
     //切換 checkbox、button
     $("#btn_open_merge").on('click', function(){

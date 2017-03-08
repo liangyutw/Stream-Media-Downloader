@@ -29,12 +29,27 @@ Route::get('/youtube/updFileName',  'YoutubeController@updateFileName'); //更�
 Route::get('/youtube/deleteRebuildFile/{del_file}',  'YoutubeController@deleteRebuildFile'); //刪除 轉換重制的原影片
 
 //聊天室
-Route::get('/chat',  'TestController@chatroom');
-Route::get('/chat/get_massage', ['as' => 'chat_get_msg', 'uses'=>"TestController@get_chatroom"]);
-Route::get('/home/{id?}', 'TestController@boardcast_user_show');
-Route::get('/dl_chat_pic/{file_name}',  ['as' => 'dl_chat_pic', 'uses'=>"TestController@download_pic_from_chatroom"]);
-Route::post('/chat/upload', ['as' => 'chat_upload', 'uses'=>"TestController@upload_chat_pic"]);
-Route::post('/chat/save', ['as' => 'chat_save', 'uses'=>"TestController@save_chatroom"]);
+Route::any('/chat/login',  ['as' => 'chat_login', 'uses'=>'ChatController@chat_login']);
+Route::any('/chat/add',  ['as' => 'chat_room_add', 'uses'=>'ChatController@add_chatroom']);
+Route::get('/chat/logout',  ['as' => 'chat_logout', 'uses'=>'ChatController@chat_logout']);
+Route::get('/chat/list',  ['as' => 'chat_room_list', 'uses'=>'ChatController@chatroom_list']);
+Route::get('/chat/get_massage', ['as' => 'chat_get_msg', 'uses'=>"ChatController@get_chatroom"]);
+Route::get('/chat/{chat_id?}',  ['as' => 'chat_room', 'uses'=>'ChatController@chatroom'])->where('chat_id', '[0-9]+');
+Route::get('/chat/del_pic/{chat_id}/{msg_token}',  ['as' => 'chat_del_pic', 'uses'=>'ChatController@del_pic_from_chatroom']);
+Route::get('/chat/del_msg/{chat_id}/{msg_token}',  ['as' => 'chat_del_msg', 'uses'=>'ChatController@del_msg_from_chatroom']);
+Route::get('/chat/dl_chat_pic/{file_name}',  ['as' => 'dl_chat_pic', 'uses'=>"ChatController@download_pic_from_chatroom"]);
+Route::any('/chat/invite/{chat_id?}',  ['as' => 'chat_invite_member', 'uses'=>"ChatController@invite_member"]);
+Route::get('/chat/invite_list',  ['as' => 'chat_invite_list', 'uses'=>"ChatController@invite_list"]);
+Route::get('/chat/del_chat_room/{chat_id}',  ['as' => 'del_chat_room', 'uses'=>"ChatController@del_chat_room"])->where('chat_id', '[0-9]+');
+Route::post('/chat/history_msg',  ['as' => 'chat_room_history', 'uses'=>"ChatController@get_chat_room_history_msg"]);
+
+Route::post('/chat/judge_invite',  ['as' => 'chat_invite_judge', 'uses'=>"ChatController@judge_invite_result"]);
+Route::post('/chat/upload', ['as' => 'chat_upload', 'uses'=>"ChatController@upload_chat_pic"]);
+Route::post('/chat/save', ['as' => 'chat_save', 'uses'=>"ChatController@save_chatroom"]);
+
+Route::get('/home/{id?}', 'ChatController@boardcast_user_show');
+
+
 
 
 //網頁推播
