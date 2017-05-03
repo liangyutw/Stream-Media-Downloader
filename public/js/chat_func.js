@@ -10,14 +10,14 @@ function showMessage(){
         },
         statusCode: {
             404: function () {
-                alert('找不到頁面');
+                console.log('找不到頁面');
             },
             500: function () {
-                alert('內部伺服器錯誤');
+                console.log('內部伺服器錯誤');
             }
         },
         success: function(html){
-            console.log(html);
+            // console.log(html);
             // return false;
 
             var msg_content = '';

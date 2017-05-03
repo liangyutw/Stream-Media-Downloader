@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form id="go_rename" action="/rename" method="post" enctype="multipart/form-data">
+  <span id="file_name"></span>修改檔案名稱：<br>
+  <input type="text" name="new_file_name" value=""><input type="submit" value="更新檔名">
+  <input type="hidden" id="old_file_name" name="old_file_name" value="">
+</form>
+<div id="messages"></div>
+
+</body>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+getQueryVariable();
+
+function getQueryVariable() {
+    var query = window.location.href;
+    var vars = query.split("/");
+    var file_name = vars[(vars.length-1)];
+
+    document.getElementById('file_name').innerHTML='原檔名：'+decodeURIComponent(file_name)+'<BR>';
+    document.getElementById('old_file_name').value=decodeURIComponent(file_name);
+    document.getElementById('go_rename').action='/rename/'+decodeURIComponent(file_name);
+}
+
+
+$(function () {
+    var socket = io('http://192.168.136.128:4000/');
+
+    socket.on('chat message', function(msg){
+        $('#messages').html(msg);
+        return false;
+    });
+
+    socket.on('server_msg', function(msg){
+        $('#messages').html(msg);
+        return false;
+    });
+});
+</script>

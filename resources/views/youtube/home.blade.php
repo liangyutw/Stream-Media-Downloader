@@ -192,6 +192,11 @@ $(function(){
         $(".deleteFile, .renameFile").css('display', 'none');
     });
 
+    //複選
+    $(".mergeFile").on('click', function(){
+        $("#btn_merge, #btn_rebuild").prop({disabled: false});
+    });
+
     //全選
     $("#select_all").on('click', function(){
         $("input[type=checkbox]").prop({checked: true});

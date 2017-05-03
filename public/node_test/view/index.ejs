@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+
+  <meta charset="utf-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/public/styles.css">
+
+
+
+
+<header>
+  <div class="container">
+    <h1><a href="/"><%= title %></a></h1>
+  </div>
+</header>
+
+<main role="main">
+  <div class="container">
+    <h3><a href="/api/posts">/api/posts</a></h3>
+    <% posts.forEach(function(post){ %>
+      <h3>
+        <a href="/post/<%= post.id %>">
+          <%= post.title %>
+        </a>
+      </h3>
+      <div><%= post.content %></div>
+    <% }); %>
+  </main>
+</div>
+
+<footer>
+  <div class="container">
+    This is footer side.
+  </div>
+</footer>

@@ -1,7 +1,18 @@
-var socket = io('http://192.168.136.128:4000');
+
 var image_height = '';
 
 $(document).ready(function(){
+
+    var socket = io('http://192.168.136.128:4000');
+    //連線錯誤（可能 server 端有狀況）
+    socket.on('disconnect', function() {
+        $('#socket_error').text('(失去連線)');
+        $('#send').attr('disabled', true);
+    });
+    socket.on('connect', function() {
+        $('#socket_error').text('');
+        $('#send').attr('disabled', false);
+    });
 
     showMessage();
 

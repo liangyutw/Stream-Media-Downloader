@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<form action="/upload" method="post" enctype="multipart/form-data">
+  選擇上傳檔案：<br>
+  <input type="file" name="img" value="">
+  <br>
+  <input type="submit" value="上傳">
+</form>
+<div id="messages"></div>
+
+</body>
+</html>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+
+$(function () {
+    var socket = io('http://192.168.136.128:4000/');
+    // $('form').submit(function(){
+    //         socket.emit('chat message', $('input[name=img]').val());
+
+    //     return false;
+    // });
+
+    socket.on('chat message', function(msg){
+        $('input[name=img]').val('');
+        $('#messages').text(msg);
+        return false;
+    });
+
+    socket.on('server_msg', function(msg){
+        $('#messages').text(msg);
+        return false;
+    });
+});
+
+</script>

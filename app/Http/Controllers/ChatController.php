@@ -264,7 +264,10 @@ class ChatController extends Controller
 
         //在檔案裡找最後一個、倒數第二個檔案路徑
         foreach ($json_arr as $key => $name) {
-            $second_last_path   = $json_arr[(count($json_arr)-$init_json_cnt)];
+            if ((count($json_arr)-$init_json_cnt) > 0) {
+                $second_last_path   = $json_arr[(count($json_arr)-$init_json_cnt)];
+            }
+
             $lastest_path       = $name;
         }
 

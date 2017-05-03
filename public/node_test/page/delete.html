@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="messages"></div>
+
+</body>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+
+
+$(function () {
+    var socket = io('http://192.168.136.128:4000/');
+
+    socket.on('chat message', function(msg){
+        $('#messages').html(msg);
+        return false;
+    });
+
+    socket.on('server_msg', function(msg){
+        $('#messages').html(msg);
+        return false;
+    });
+});
+</script>

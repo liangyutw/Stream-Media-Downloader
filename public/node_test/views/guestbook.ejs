@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+
+  <meta charset="utf-8">
+  <title>留言列表</title>
+
+
+
+
+<header>
+  <div class="container">
+    <h1><a href="/">留言列表</a></h1>
+  </div>
+</header>
+
+<main role="main">
+
+<% if(edit_status == true) {
+    posts.data.forEach(function(post){%>
+    <form action="/edit/<%=post.uuid%>" method="post" enctype="multipart/form-data">
+        暱稱：<input type="text" name="upd_nickname" value="<%=post.nickname%>"><BR>
+        留言：<textarea name="upd_message_content" rows="10" cols="70"><%=post.message_content%></textarea><BR>
+        <input type="submit" value="修改內容">
+    </form>
+    <% }) %>
+<% }else{%>
+
+    <form action="/leave_message" method="post" enctype="multipart/form-data">
+      標題：<input type="text" name="subject" value=""><BR>
+      暱稱：<input type="text" name="nickname" value=""><BR>
+      留言內容：<BR><textarea name="message_content" rows="10" cols="70"></textarea><br>
+      <input type="submit" value="留言">
+    </form>
+
+
+    <div class="container" id="messages">
+    <% if (posts == false) { %>
+        <h3>無資料</h3>
+    <% } else {%>
+
+
+            <%
+            k= (posts.page == 1) ? (posts.total+1) : ((posts.total+1)-(posts.page-1)*5);
+            posts.data.forEach(function(post){ %>
+            <% k-- %>
+
+                <h3><%= k %>.</h3>
+                <a href="/<%= post.uuid%>"><%=post.subject%></a>
+                <!-- 暱稱：<%=post.nickname%><BR>
+                留言：<%- post.message_content %><BR>
+                留言時間：<%= post.insert_date %><BR>
+                <a href="/edit/<%= post.uuid%>">編輯</a> <a href="/delete/<%= post.uuid%>">刪除</a> -->
+                <hr>
+            <% }); %>
+
+    <% } %>
+    </div>
+
+<% } %>
+</main>
+
+<% if(posts.page){ %>
+<div>你正在第 <%= posts.page %> 頁，共 <%= Math.ceil(posts.total/5) %> 頁，<%=posts.total%> 筆留言</div>
+<% }%>
+<div style="padding:20px;">
+  <% if(posts.page-1){ %>
+    <span class="lastpage"><a title="上一頁" href="?p=<%= posts.page-1 %>">上一頁</a></span>
+  <% } %>
+
+  <% if(posts.total > 5 && Math.ceil(posts.total/5) > posts.page){ %>
+    <span class="nextpage"><a title="下一頁" href="?p=<%= posts.page+1 %>">下一頁</a></span>
+  <% } %>
+  <BR>
+  輸入頁數 <input type="text" name="page_num" value="" style="width:35px;font-size: 10pt;"><input type="button" name="jmp_page" value=跳頁>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+<script>
+
+$(function () {
+    var posts_total = '<%= posts.total %>';
+
+    $("input[name='jmp_page']").on('click', function(){
+        var jmp_page = $("input[name='page_num']").val();
+
+        if (jmp_page > Math.ceil(posts_total/5)) {
+            alert('查無此頁!');
+            history.go(-1);
+        } else {
+            location.href='?p='+jmp_page;
+        }
+    });
+});
+
+</script>

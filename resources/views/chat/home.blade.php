@@ -10,7 +10,8 @@
         <p id="error_msg" style="background-color: #FF0000;padding:15px;position: absolute;z-index: 99;width:60%;opacity: 0.8;color: #fff;font-size: 15px;">{{Session::get('error_msg')}}<button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button></p>
     @endif
     <ul>
-        <h3>你正在{{$room_name}}聊天室</h3>
+
+        <h3><span id="socket_error"></span>你正在{{$room_name}}聊天室</h3>
         <button type="button" class="btn btn-primary btn-md" onclick="location.href='/chat/list'"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>回上頁</button>
 
         <button type="button" class="btn btn-primary btn-md"  onclick="location.href='{{route('chat_invite_member', $chat_id)}}'">

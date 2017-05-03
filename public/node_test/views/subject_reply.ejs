@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+  <meta charset="utf-8">
+  <title><%= subject %></title>
+
+
+
+
+<header>
+  <div class="container">
+    <h1><%= subject %></h1>
+  </div>
+</header>
+
+<main role="main">
+
+<% if (comment_reply == true) { %>
+
+    <% posts.data.forEach(function(post){ %>
+        <form action="/leave_message_for_comment/<%=post.uuid%>" method="post" enctype="multipart/form-data">
+            暱稱：<input type="text" name="cmt_nickname" value=""><BR>
+            留言：<textarea name="cmt_message_content" rows="10" cols="70"></textarea><BR>
+            <input type="submit" value="提交內容">
+        </form>
+    <% }); %>
+
+<% } else {%>
+
+    <% if (posts == false) { %>
+        <h3>無資料</h3>
+    <% } else {%>
+
+
+        <% posts.subject_creator_data.forEach(function(row){ %>
+            暱稱：<%=row.nickname%><BR>
+            留言：<%- row.message_content %><BR>
+            留言時間：<%= row.insert_date %><BR>
+            <a href="/comment/<%= row.uuid%>">回應</a> <a href="/edit/<%= row.uuid%>">編輯</a> <a href="/delete/<%= row.uuid%>">刪除</a>
+        <% }); %>
+
+        <blockquote>
+            <% posts.reply_data.forEach(function(post){ %>
+                暱稱：<%=post.nickname%><BR>
+                留言：<%- post.message_content %><BR>
+                留言時間：<%= post.insert_date %><BR>
+                <hr>
+            <% }); %>
+        </blockquote>
+
+    <% } %>
+
+<% } %>
+
+</main>
