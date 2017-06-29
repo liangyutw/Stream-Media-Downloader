@@ -12,18 +12,17 @@ redis.subscribe('register_mail', function(err, count) {
 io.on('connection', function(socket) {
 
     socket.on('set-token', function(token) {
-        //console.log(token);
+        console.log(token);
         socket.join('token:' + token);
     });
 });
 
 redis.on('message', function(channel, notification) {
+    // 將訊息推播給使用者
+    io.emit('register_mail', {"return":1});
 
     notification = JSON.parse(notification);
     //console.log(notification.data);
-
-    // 將訊息推播給使用者
-    io.emit('register_mail', {"return":1});
 
     var nodemailer = require('nodemailer');
     var smtpTransport = require('nodemailer-smtp-transport');
@@ -54,7 +53,7 @@ redis.on('message', function(channel, notification) {
         //純文字
         text: '',
         //嵌入 html 的內文
-        html: notification.data.register_message,
+        html: '[由Laravel推播服務寄送]'+notification.data.register_message,
         //附件檔案
         attachments: [
             // {

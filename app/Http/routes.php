@@ -47,7 +47,7 @@ Route::post('/chat/judge_invite',  ['as' => 'chat_invite_judge', 'uses'=>"ChatCo
 Route::post('/chat/upload', ['as' => 'chat_upload', 'uses'=>"ChatController@upload_chat_pic"]);
 Route::post('/chat/save', ['as' => 'chat_save', 'uses'=>"ChatController@save_chatroom"]);
 
-Route::get('/home/{id?}', 'ChatController@boardcast_user_show');
+Route::get('/home/{id?}', 'TestController@boardcast_user_show');
 
 
 
@@ -59,3 +59,5 @@ Route::post('/boardcast', ['as' => 'boardcast_create','uses'=>'TestController@cr
 //註冊信發送
 Route::post('/register_store', ['as' => 'register_store','uses'=>'TestController@register_store']);
 
+//Todo list
+Route::get('/todolist', 'TodoController@index');

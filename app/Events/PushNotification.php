@@ -6,6 +6,7 @@ use App\Events\Event;
 use App\User;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+
 class PushNotification extends Event implements ShouldBroadcast
 {
     use SerializesModels;
